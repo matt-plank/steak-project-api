@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 from app.app import app
 
 
-def test_create():
+def test_post():
     client = TestClient(app)
 
     response = client.post(
@@ -18,4 +18,18 @@ def test_create():
         "medium": 125.0,
         "midWell": 150.0,
         "well": 175.0,
+    }
+
+
+def test_post_no_thickness():
+    client = TestClient(app)
+
+    response = client.post(
+        "/timing/",
+        json={"bad": "data"},
+    )
+
+    assert response.status_code == 400
+    assert response.json() == {
+        "message": "You must provide a thickness",
     }
