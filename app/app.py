@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 
-app = FastAPI()
+from .routers import timing
 
-@app.get("/")
-async def read_root():
-    return {"message": "Hello, World!"}
+app = FastAPI()
+app.include_router(timing.router, prefix="/timing")
