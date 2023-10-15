@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from app.app import app
+from steak_project_api.app import app
 
 
 def test_post():

@@ -3,9 +3,9 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "app"
+name = "steak-project-api"
 version = "0.0.1"
 dependencies = []
 
 [tool.setuptools]
-packages = ["app"]
+packages = ["steak_project_api"]
