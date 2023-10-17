@@ -2,10 +2,6 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 
 
-class BadToken(Exception):
-    pass
-
-
 async def extract_token(request: Request, call_next):
     request.state.token = None
 
