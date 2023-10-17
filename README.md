@@ -1,3 +1,5 @@
+[![Tests](https://github.com/matt-plank/steak-project-api/actions/workflows/tests.yaml/badge.svg)](https://github.com/matt-plank/steak-project-api/actions/workflows/tests.yaml)
+
 # steak-project-api
 
 The back-end of my website - The Steak Project - available at [thesteakproject.com](https://thesteakproject.com).
