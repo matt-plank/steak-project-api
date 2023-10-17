@@ -1,11 +1,4 @@
-from fastapi.testclient import TestClient
-
-from steak_project_api.app import app
-
-
-def test_post():
-    client = TestClient(app)
-
+def test_post(client):
     response = client.post(
         "/timing/",
         json={"thickness": 2.5},
@@ -21,9 +14,7 @@ def test_post():
     }
 
 
-def test_post_no_thickness():
-    client = TestClient(app)
-
+def test_post_no_thickness(client):
     response = client.post(
         "/timing/",
         json={"bad": "data"},
