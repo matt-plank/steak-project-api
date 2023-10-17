@@ -4,6 +4,8 @@ from enum import Enum, auto
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
+from ..auth import requires_key
+
 router = APIRouter()
 
 
@@ -28,6 +30,7 @@ measurements: list[Measurement] = []
 
 
 @router.post("/")
+@requires_key
 async def create(request: Request):
     request_json: dict = await request.json()
 
