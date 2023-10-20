@@ -15,8 +15,16 @@ $ git clone https://github.com/matt-plank/steak-project-api.git
 Install dependencies
 
 ```bash
+# In repo root
 $ pip install -r requirements.txt
 $ pip install -e .
+```
+
+Run tests to make sure everything is installed
+
+```bash
+# In repo root
+$ python -m pytest
 ```
 
 ## Running
@@ -24,6 +32,7 @@ $ pip install -e .
 For development
 
 ```bash
+# In repo root
 $ uvicorn app.app:app --host 0.0.0.0 --port 8000 --reload
 ```
 
