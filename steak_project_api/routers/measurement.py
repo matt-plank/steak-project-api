@@ -5,6 +5,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
 from ..auth import requires_key
+from ..db import client, measurements
 
 router = APIRouter()
 
@@ -19,19 +20,28 @@ class Doneness(Enum):
     BURNT = auto()
 
 
-@dataclass
-class Measurement:
-    thickness: float
-    cook_time: float
-    doneness: Doneness
+@router.get("/")
+async def get(request: Request) -> JSONResponse:
+    """View all the stored measurements."""
+    response = measurements.find()
 
-
-measurements: list[Measurement] = []
+    return JSONResponse(
+        status_code=200,
+        content=[
+            {
+                "thickness": measurement["thickness"],
+                "cookTime": measurement["cookTime"],
+                "doneness": measurement["doneness"],
+            }
+            for measurement in response
+        ],
+    )
 
 
 @router.post("/")
 @requires_key
 async def create(request: Request):
+    """Create a new measurement and store it."""
     request_json: dict = await request.json()
 
     if "thickness" not in request_json:
@@ -58,15 +68,19 @@ async def create(request: Request):
             content={"message": f"{request_json['doneness']} is not a valid Doneness"},
         )
 
-    measurement = Measurement(
-        thickness=request_json["thickness"],
-        cook_time=request_json["cookTime"],
-        doneness=Doneness[request_json["doneness"]],
-    )
-    measurements.append(measurement)
-
-    return {
-        "thickness": measurement.thickness,
-        "cookTime": measurement.cook_time,
-        "doneness": measurement.doneness.name,
+    measurement = {
+        "thickness": request_json["thickness"],
+        "cookTime": request_json["cookTime"],
+        "doneness": request_json["doneness"],
     }
+
+    measurements.insert_one(measurement)
+
+    return JSONResponse(
+        status_code=201,
+        content={
+            "thickness": measurement["thickness"],
+            "cookTime": measurement["cookTime"],
+            "doneness": measurement["doneness"],
+        },
+    )

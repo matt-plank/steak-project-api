@@ -1,3 +1,21 @@
+def test_get(client):
+    response = client.get("/measurement/")
+
+    assert response.status_code == 200
+    assert response.json() == [
+        {
+            "thickness": 2.5,
+            "cookTime": 90,
+            "doneness": "RARE",
+        },
+        {
+            "thickness": 2.5,
+            "cookTime": 120,
+            "doneness": "MEDIUM",
+        },
+    ]
+
+
 def test_post(client, api_key):
     response = client.post(
         "/measurement/",
@@ -11,7 +29,7 @@ def test_post(client, api_key):
         },
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 201
     assert response.json() == {
         "thickness": 2.5,
         "cookTime": 90,
