@@ -5,8 +5,6 @@ from pytest import fixture
 
 from .mocks.client import client_mock
 
-TEST_KEY: str = "my-test-key"
-
 
 @fixture
 def client(app):
@@ -29,7 +27,7 @@ def patch_env_vars(monkeypatch, api_key):
 
 @fixture
 def api_key():
-    return TEST_KEY
+    return "my-test-key"
 
 
 @fixture
