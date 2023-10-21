@@ -20,6 +20,14 @@ $ pip install -r requirements.txt
 $ pip install -e .
 ```
 
+Configure environment variables (.env file optional, but recommended)
+
+```bash
+# .env
+MONGO_URI="mongo+srv://<username>:<password>@<domain>"
+API_KEY="some-api-key-used-for-authenticating-users"
+```
+
 Run tests to make sure everything is installed
 
 ```bash
