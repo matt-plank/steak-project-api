@@ -1,4 +1,4 @@
-def test_get(client):
+def test_get(client, setup_teardown_db):
     response = client.get("/measurement/")
 
     assert response.status_code == 200
@@ -16,7 +16,7 @@ def test_get(client):
     ]
 
 
-def test_post(client, api_key):
+def test_post(client, api_key, setup_teardown_db):
     response = client.post(
         "/measurement/",
         headers={

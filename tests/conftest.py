@@ -1,7 +1,11 @@
+import os
+
+from dotenv import load_dotenv
 from fastapi.testclient import TestClient
+from pymongo import MongoClient
 from pytest import fixture
 
-from .mocks.client import client_mock
+load_dotenv()
 
 
 @fixture
@@ -11,10 +15,10 @@ def client(app):
 
 
 @fixture
-def app(monkeypatch, patch_env_vars, patch_mongo):
+def app(monkeypatch, patch_env_vars):
     """The FastAPI application for the client to request from.
 
-    Fixtures to patch environment variables and MongoDB client.
+    Fixtures to patch environment variables.
     Patch env vars before import to ensure access to api key and mongo credentials.
     """
     from steak_project_api.app import app
@@ -23,11 +27,11 @@ def app(monkeypatch, patch_env_vars, patch_mongo):
 
 
 @fixture
-def patch_env_vars(monkeypatch, api_key):
+def patch_env_vars(monkeypatch, api_key, test_db_name):
     """Patches required environment variables."""
-    monkeypatch.setenv("MONGO_USERNAME", "my-test-username")
-    monkeypatch.setenv("MONGO_PASSWORD", "my-test-password")
     monkeypatch.setenv("API_KEY", api_key)
+    monkeypatch.setenv("MONGO_DB", "steak_project")
+    monkeypatch.setenv("MONGO_TEST_DB", test_db_name)
 
 
 @fixture
@@ -37,15 +41,32 @@ def api_key():
 
 
 @fixture
-def patch_mongo(monkeypatch, mongo_client_mock):
-    """Patches the MongoDB client with a fake data source."""
-    monkeypatch.setattr(
-        "pymongo.MongoClient",
-        mongo_client_mock,
-    )
+def test_db_name():
+    """The name of the test database."""
+    return "steak_project_test"
 
 
 @fixture
-def mongo_client_mock():
-    """Fake MongoDB client used to prevent the need for deployed database."""
-    return client_mock
+def setup_teardown_db(test_db_name):
+    client = MongoClient(os.environ["MONGO_URI"])
+    database = client[test_db_name]
+    measurements = database.measurements
+
+    measurements.insert_many(
+        [
+            {
+                "thickness": 2.5,
+                "cookTime": 90,
+                "doneness": "RARE",
+            },
+            {
+                "thickness": 2.5,
+                "cookTime": 120,
+                "doneness": "MEDIUM",
+            },
+        ]
+    )
+
+    yield
+
+    measurements.delete_many({})

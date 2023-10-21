@@ -4,10 +4,12 @@ from pymongo import MongoClient
 from pymongo.collection import Collection
 from pymongo.database import Database
 
-MONGO_USERNAME: str = os.environ["MONGO_USERNAME"]
-MONGO_PASSWORD: str = os.environ["MONGO_PASSWORD"]
-MONGO_URI: str = f"mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@thesteakproject.jmceetb.mongodb.net/?retryWrites=true&w=majority"
+MONGO_URI: str = os.environ["MONGO_URI"]
+DB_NAME: str = os.environ["MONGO_DB"]
+
+if "MONGO_TEST_DB" in os.environ:
+    DB_NAME = os.environ["MONGO_TEST_DB"]
 
 client = MongoClient(MONGO_URI)
-db: Database = client.steak_project
+db: Database = client[DB_NAME]
 measurements: Collection = db.measurements
