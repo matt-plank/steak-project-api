@@ -2,6 +2,13 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 
 
+def header_is_valid(header: str) -> bool:
+    if not header.startswith("Bearer "):
+        return False
+
+    return True
+
+
 async def extract_token(request: Request, call_next):
     request.state.token = None
 
@@ -10,7 +17,7 @@ async def extract_token(request: Request, call_next):
 
     AUTHORIZATION_HEADER: str = request.headers["Authorization"]
 
-    if not AUTHORIZATION_HEADER.startswith("Bearer "):
+    if not header_is_valid(AUTHORIZATION_HEADER):
         return JSONResponse(
             content={"message": "Improperly formatted Authorization header"},
             status_code=401,
