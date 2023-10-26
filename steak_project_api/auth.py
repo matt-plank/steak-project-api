@@ -1,25 +1,15 @@
 import os
 
-from fastapi import Request
-from fastapi.responses import JSONResponse
+from fastapi import HTTPException, Request
 
 API_KEY: str = os.environ["API_KEY"]
 
 
-def requires_key(func):
-    async def wrapper(request: Request):
-        if request.state.token is None:
-            return JSONResponse(
-                content={"message": "Authorization required"},
-                status_code=401,
-            )
+async def is_authenticated(request: Request) -> bool:
+    if request.state.token is None or request.state.token != API_KEY:
+        raise HTTPException(
+            status_code=401,
+            detail="Could not authenticate",
+        )
 
-        if request.state.token != API_KEY:
-            return JSONResponse(
-                content={"message": "Invalid API key"},
-                status_code=401,
-            )
-
-        return await func(request)
-
-    return wrapper
+    return True

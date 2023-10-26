@@ -1,6 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 from .. import schemas
+from ..auth import is_authenticated
 from ..db import measurements
 
 router = APIRouter()
@@ -23,7 +24,7 @@ async def get():
 
 
 @router.post("/", response_model=schemas.Measurement, status_code=201)
-async def create(measurement: schemas.NewMeasurement):
+async def create(measurement: schemas.NewMeasurement, auth: bool = Depends(is_authenticated)):
     """Create a new measurement and store it."""
     inserted = measurements.insert_one(measurement.model_dump())
 
