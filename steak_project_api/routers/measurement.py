@@ -1,86 +1,35 @@
-from dataclasses import dataclass
-from enum import Enum, auto
+from fastapi import APIRouter
 
-from fastapi import APIRouter, Request
-from fastapi.responses import JSONResponse
-
-from ..auth import requires_key
-from ..db import client, measurements
+from .. import schemas
+from ..db import measurements
 
 router = APIRouter()
 
 
-class Doneness(Enum):
-    RAW = auto()
-    RARE = auto()
-    MID_RARE = auto()
-    MEDIUM = auto()
-    MID_WELL = auto()
-    WELL = auto()
-    BURNT = auto()
-
-
-@router.get("/")
-async def get(request: Request) -> JSONResponse:
+@router.get("/", response_model=list[schemas.Measurement])
+async def get():
     """View all the stored measurements."""
-    response = measurements.find()
+    all_measurements = [
+        schemas.Measurement(
+            id=str(measurement["_id"]),
+            thickness=measurement["thickness"],
+            cookTime=measurement["cookTime"],
+            doneness=measurement["doneness"],
+        )
+        for measurement in measurements.find()
+    ]
 
-    return JSONResponse(
-        status_code=200,
-        content=[
-            {
-                "thickness": measurement["thickness"],
-                "cookTime": measurement["cookTime"],
-                "doneness": measurement["doneness"],
-            }
-            for measurement in response
-        ],
-    )
+    return all_measurements
 
 
-@router.post("/")
-@requires_key
-async def create(request: Request):
+@router.post("/", response_model=schemas.Measurement, status_code=201)
+async def create(measurement: schemas.NewMeasurement):
     """Create a new measurement and store it."""
-    request_json: dict = await request.json()
+    inserted = measurements.insert_one(measurement.model_dump())
 
-    if "thickness" not in request_json:
-        return JSONResponse(
-            status_code=400,
-            content={"message": "thickness is required"},
-        )
-
-    if "cookTime" not in request_json:
-        return JSONResponse(
-            status_code=400,
-            content={"message": "cookTime is required"},
-        )
-
-    if "doneness" not in request_json:
-        return JSONResponse(
-            status_code=400,
-            content={"message": "doneness is required"},
-        )
-
-    if request_json["doneness"] not in Doneness.__members__:
-        return JSONResponse(
-            status_code=400,
-            content={"message": f"{request_json['doneness']} is not a valid Doneness"},
-        )
-
-    measurement = {
-        "thickness": request_json["thickness"],
-        "cookTime": request_json["cookTime"],
-        "doneness": request_json["doneness"],
-    }
-
-    measurements.insert_one(measurement)
-
-    return JSONResponse(
-        status_code=201,
-        content={
-            "thickness": measurement["thickness"],
-            "cookTime": measurement["cookTime"],
-            "doneness": measurement["doneness"],
-        },
+    result = schemas.Measurement(
+        **measurement.model_dump(),
+        id=str(inserted.inserted_id),
     )
+
+    return result
