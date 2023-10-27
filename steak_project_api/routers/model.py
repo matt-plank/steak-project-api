@@ -1,8 +1,8 @@
 import pymongo
-from fastapi import HTTPException
+from fastapi import Depends, HTTPException
 from fastapi.routing import APIRouter
 
-from .. import db, schemas
+from .. import auth, db, schemas
 
 router = APIRouter()
 
@@ -25,3 +25,13 @@ def get(doneness: str):
     )
 
     return response
+
+
+@router.post("/", status_code=201)
+def post(model: schemas.NewModel, auth=Depends(auth.is_authenticated)):
+    inserted = db.models.insert_one(model.model_dump())
+
+    return schemas.Model(
+        **model.model_dump(),
+        id=str(inserted.inserted_id),
+    )
