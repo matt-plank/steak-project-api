@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .middleware import auth
-from .routers import measurement, timing
+from .routers import measurement, model, timing
 
 load_dotenv()
 
@@ -20,3 +20,4 @@ app.add_middleware(
 
 app.include_router(timing.router, prefix="/timing")
 app.include_router(measurement.router, prefix="/measurement")
+app.include_router(model.router, prefix="/model")

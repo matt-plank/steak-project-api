@@ -13,3 +13,4 @@ if "MONGO_TEST_DB" in os.environ:
 client = MongoClient(MONGO_URI)
 db: Database = client[DB_NAME]
 measurements: Collection = db.measurements
+models: Collection = db.models

@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 from dotenv import load_dotenv
 from fastapi.testclient import TestClient
@@ -50,8 +51,8 @@ def test_db_name():
 def setup_teardown_db(test_db_name):
     client = MongoClient(os.environ["MONGO_URI"])
     database = client[test_db_name]
-    measurements = database.measurements
 
+    measurements = database.measurements
     measurements.insert_many(
         [
             {
@@ -67,6 +68,37 @@ def setup_teardown_db(test_db_name):
         ]
     )
 
+    models = database.models
+    models.insert_many(
+        [
+            {
+                "doneness": "rare",
+                "created": datetime(2022, 1, 1),
+                "coefficients": {
+                    "thickness": 25,
+                    "bias": 20,
+                },
+            },
+            {
+                "doneness": "rare",
+                "created": datetime(2023, 1, 1),
+                "coefficients": {
+                    "thickness": 15,
+                    "bias": 10,
+                },
+            },
+            {
+                "doneness": "medium",
+                "created": datetime(2024, 1, 1),
+                "coefficients": {
+                    "thickness": 1000,
+                    "bias": 100,
+                },
+            },
+        ]
+    )
+
     yield
 
     measurements.delete_many({})
+    models.delete_many({})
